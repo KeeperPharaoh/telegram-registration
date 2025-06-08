@@ -64,6 +64,9 @@ function App() {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
+        <div style={{position: 'absolute', top: 10, left: 0, width: '100%', textAlign: 'center', color: '#2ecc40', fontWeight: 700, fontSize: 18, letterSpacing: 2}}>
+          v2 DEPLOY TEST
+        </div>
         <form 
           onSubmit={handleSubmit(onSubmit)} 
           style={{
@@ -80,7 +83,7 @@ function App() {
               <div key={field} style={{
                 display: 'flex',
                 alignItems: 'center',
-                marginBottom: 23,
+                marginBottom: 24,
               }}>
                 <label style={{
                   flex: 1,
