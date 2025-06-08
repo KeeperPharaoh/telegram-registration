@@ -9,20 +9,9 @@ import { Controller } from 'react-hook-form';
 
 const schema = yup.object({
   company_name: yup.string().required('Обязательное поле'),
-  email: yup.string().email('Неверный формат') .required('Обязательное поле'),
+  email: yup.string().email('Неверный формат').required('Обязательное поле'),
   first_name: yup.string().required('Обязательное поле'),
   last_name: yup.string().required('Обязательное поле'),
-  phone: yup
-    .string()
-    .required('Обязательное поле')
-    .test('is-full', 'Введите корректный номер', value => {
-      // value может быть undefined/null
-      if (!value) return false;
-      // Проверяем, что все символы кроме + и пробелов — цифры, и длина 16 ("+7 000 000 00 00")
-      const digits = value.replace(/\D/g, '');
-      // +7 000 000 00 00 => 11 цифр (7 + 10)
-      return value.length === 16 && digits.length === 11;
-    }),
   username: yup.string().required('Обязательное поле'),
 }).required();
 
@@ -30,24 +19,25 @@ function App() {
   const [, setServerErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
-  // Получаем chat_id из query-параметра
+  // Получаем chat_id и phone из query-параметра
   const searchParams = new URLSearchParams(window.location.search);
   const chatId = searchParams.get('chat_id') || '';
+  const phone = searchParams.get('phone') || '';
 
   const { register, handleSubmit, setError, formState: { errors }, reset, control } = useForm({
     resolver: yupResolver(schema)
   });
 
-  // Убираем chat_id из массива полей формы
-  const fields = ['company_name','email','first_name','last_name','phone','username'];
+  // Убираем chat_id и phone из массива полей формы
+  const fields = ['company_name','email','first_name','last_name','username'];
 
   const onSubmit = async data => {
     setServerErrors({});
     try {
-      // Добавляем chat_id к данным
+      // Добавляем chat_id и phone к данным
       const resp = await axios.post(
           'https://platform.astanahubcloud.com/telegram/auth/registration',
-          { ...data, chat_id: chatId }
+          { ...data, chat_id: chatId, phone }
       );
       if (resp.data.status) {
         setSuccess(true);
@@ -60,6 +50,10 @@ function App() {
       console.error(e);
     }
   };
+
+  if (!phone) {
+    return <h2 style={{color: 'white', textAlign: 'center', marginTop: '20vh'}}>Невалидная ссылка</h2>;
+  }
 
   if (success) return <h2 style={{color: 'white', textAlign: 'center', marginTop: '20vh'}}>Вы успешно зарегистрировались, ожидайте проверку.</h2>;
 
@@ -101,53 +95,23 @@ function App() {
                   email: 'Email',
                   first_name: 'Имя',
                   last_name: 'Фамилия',
-                  phone: 'Телефон',
                   username: 'Логин'
                 }[field]}</label>
                 <div style={{flex: 2, display: 'flex', flexDirection: 'column'}}>
-                  {field === 'phone' ? (
-                    <Controller
-                      name="phone"
-                      control={control}
-                      defaultValue=""
-                      render={({ field: { onChange, onBlur, value, ref } }) => (
-                        <IMaskInput
-                          mask="+7 000 000 00 00"
-                          unmask={false}
-                          value={value}
-                          inputRef={ref}
-                          onAccept={onChange}
-                          onBlur={onBlur}
-                          style={{
-                            border: errors[field] ? '1px solid #2ecc40' : '1px solid #333',
-                            background: '#222',
-                            color: 'white',
-                            borderRadius: 6,
-                            padding: '10px 12px',
-                            fontSize: 16,
-                            outline: 'none',
-                            width: '100%',
-                            boxSizing: 'border-box',
-                          }}
-                        />
-                      )}
-                    />
-                  ) : (
-                    <input 
-                      {...register(field)} 
-                      style={{
-                        border: errors[field] ? '1px solid #2ecc40' : '1px solid #333',
-                        background: '#222',
-                        color: 'white',
-                        borderRadius: 6,
-                        padding: '10px 12px',
-                        fontSize: 16,
-                        outline: 'none',
-                        width: '100%',
-                        boxSizing: 'border-box',
-                      }} 
-                    />
-                  )}
+                  <input 
+                    {...register(field)} 
+                    style={{
+                      border: errors[field] ? '1px solid #2ecc40' : '1px solid #333',
+                      background: '#222',
+                      color: 'white',
+                      borderRadius: 6,
+                      padding: '10px 12px',
+                      fontSize: 16,
+                      outline: 'none',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                    }} 
+                  />
                   <p style={{color: '#2ecc40', margin: 0, fontSize: 13}}>{errors[field]?.message}</p>
                 </div>
               </div>
