@@ -16,7 +16,7 @@ const schema = yup.object({
 }).required();
 
 function App() {
-  const [serverErrors, setServerErrors] = useState({});
+  const [, setServerErrors] = useState({});
   const [success, setSuccess] = useState(false);
 
   const { register, handleSubmit, setError, formState: { errors } } = useForm({
@@ -27,8 +27,8 @@ function App() {
     setServerErrors({});
     try {
       const resp = await axios.post(
-        'https://platform.astanahubcloud.com/telegram/auth/registration',
-        data
+          'https://platform.astanahubcloud.com/telegram/auth/registration',
+          data
       );
       if (resp.data.status) {
         setSuccess(true);
@@ -45,26 +45,25 @@ function App() {
   if (success) return <h2>Вы успешно зарегистрировались, ожидайте проверку.</h2>;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {['chat_id','company_name','email','first_name','last_name','phone','username'].map(field => (
-        <div key={field}>
-          <label>{{
-            chat_id: 'Chat ID',
-            company_name: 'Компания',
-            email: 'Email',
-            first_name: 'Имя',
-            last_name: 'Фамилия',
-            phone: 'Телефон',
-            username: 'Имя пользователя'
-          }[field]}</label>
-          <input {...register(field)} style={{border: errors[field] ? '1px solid red' : undefined}} />
-          <p style={{color: 'red'}}>{errors[field]?.message}</p>
-        </div>
-      ))}
-      <button type="submit">Регистрация</button>
-    </form>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {['chat_id','company_name','email','first_name','last_name','phone','username'].map(field => (
+            <div key={field}>
+              <label>{{
+                chat_id: 'Chat ID',
+                company_name: 'Компания',
+                email: 'Email',
+                first_name: 'Имя',
+                last_name: 'Фамилия',
+                phone: 'Телефон',
+                username: 'Имя пользователя'
+              }[field]}</label>
+              <input {...register(field)} style={{border: errors[field] ? '1px solid red' : undefined}} />
+              <p style={{color: 'red'}}>{errors[field]?.message}</p>
+            </div>
+        ))}
+        <button type="submit">Регистрация</button>
+      </form>
   );
 }
 
 export default App;
-
