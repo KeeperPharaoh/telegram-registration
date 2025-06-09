@@ -65,11 +65,9 @@ function App() {
 
   return (
       <div style={{
-        minHeight: '100vh',
+        marginTop: '100px',
+        minHeight: '124vh',
         background: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         padding: '16px',
       }}>
         <form 
@@ -80,7 +78,7 @@ function App() {
             borderRadius: 16,
             boxShadow: '0 4px 32px rgba(0,0,0,0.08)',
             width: 'auto',
-            maxWidth: '100%',
+            maxWidth: '90vw',
             color: '#222',
             margin: '0 auto',
           }}
