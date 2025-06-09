@@ -46,7 +46,14 @@ function App() {
         }
       }
     } catch (e) {
-      console.error(e);
+      // Обработка ошибок с сервера (422)
+      if (e.response && e.response.data && e.response.data.errors) {
+        for (let key in e.response.data.errors) {
+          setError(key, { type: "server", message: e.response.data.errors[key] });
+        }
+      } else {
+        console.error(e);
+      }
     }
   };
 
@@ -59,39 +66,38 @@ function App() {
   return (
       <div style={{
         minHeight: '100vh',
-        background: '#111',
+        background: '#fff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: '16px',
       }}>
-        <div style={{position: 'absolute', top: 10, left: 0, width: '100%', textAlign: 'center', color: '#2ecc40', fontWeight: 700, fontSize: 18, letterSpacing: 2}}>
-          v2 DEPLOY TEST
-        </div>
         <form 
           onSubmit={handleSubmit(onSubmit)} 
           style={{
-            background: 'rgba(20,20,20,0.95)',
-            padding: 40,
+            background: '#fff',
+            padding: '32px 20px',
             borderRadius: 16,
-            boxShadow: '0 4px 32px rgba(0,0,0,0.5)',
-            width: '100%',
-            maxWidth: 480,
-            color: 'white',
+            boxShadow: '0 4px 32px rgba(0,0,0,0.08)',
+            width: 'auto',
+            maxWidth: '100%',
+            color: '#222',
+            margin: '0 auto',
           }}
         >
           {fields.map(field => (
               <div key={field} style={{
                 display: 'flex',
-                alignItems: 'center',
+                flexDirection: 'column',
+                alignItems: 'stretch',
                 marginBottom: 24,
               }}>
                 <label style={{
-                  flex: 1,
-                  marginRight: 16,
+                  marginBottom: 8,
                   fontWeight: 500,
                   fontSize: 16,
-                  color: '#aaa',
-                  textAlign: 'right',
+                  color: '#333',
+                  textAlign: 'left',
                 }}>{{
                   company_name: 'Компания',
                   email: 'Email',
@@ -99,23 +105,21 @@ function App() {
                   last_name: 'Фамилия',
                   username: 'Логин'
                 }[field]}</label>
-                <div style={{flex: 2, display: 'flex', flexDirection: 'column'}}>
-                  <input 
-                    {...register(field)} 
-                    style={{
-                      border: errors[field] ? '1px solid #2ecc40' : '1px solid #333',
-                      background: '#222',
-                      color: 'white',
-                      borderRadius: 6,
-                      padding: '10px 12px',
-                      fontSize: 16,
-                      outline: 'none',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                    }} 
-                  />
-                  <p style={{color: '#2ecc40', margin: 0, fontSize: 13}}>{errors[field]?.message}</p>
-                </div>
+                <input 
+                  {...register(field)} 
+                  style={{
+                    border: errors[field] ? '1px solid #e74c3c' : '1px solid #ccc',
+                    background: '#fafafa',
+                    color: '#222',
+                    borderRadius: 6,
+                    padding: '10px 12px',
+                    fontSize: 16,
+                    outline: 'none',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                  }} 
+                />
+                <p style={{color: '#e74c3c', margin: 0, fontSize: 13, minHeight: 18}}>{errors[field]?.message}</p>
               </div>
           ))}
           <button 
