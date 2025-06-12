@@ -80,6 +80,9 @@ function App() {
         );
         if (resp.data.status) {
           setRegistrationSuccess(true);
+          if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.close();
+          }
         } else {
           for (let key in resp.data.errors) {
             setError(key, { type: "server", message: resp.data.errors[key] });
