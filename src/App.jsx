@@ -250,10 +250,7 @@ function App() {
 
   return (
       <div style={{
-        marginTop: '100px',
-        minHeight: '124vh',
         background: '#fff',
-        padding: '16px',
       }}>
         {renderForm()}
       </div>
