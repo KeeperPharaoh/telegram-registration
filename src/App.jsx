@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -28,10 +28,29 @@ function App() {
   const [requestId, setRequestId] = useState('');
   const [serverErrors, setServerErrors] = useState({});
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const searchParams = new URLSearchParams(window.location.search);
   const chatId = searchParams.get('chat_id') || '';
   const phone = searchParams.get('phone') || '';
+
+  useEffect(() => {
+    const checkRegistration = async () => {
+      try {
+        const resp = await axios.post(
+          'https://platform.astanahubcloud.com/telegram/auth/check',
+          { chat_id: chatId, phone: phone }
+        );
+        if (resp.data.state !== 'new') {
+          setIsAlreadyRegistered(true);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    checkRegistration();
+  }, [chatId, phone]);
 
   const {
     register,
@@ -46,6 +65,7 @@ function App() {
 
   const onSubmit = async data => {
     setServerErrors({});
+    setIsSubmitting(true);
     try {
       if (step === 'email_input') {
         setEmail(data.email);
@@ -98,14 +118,20 @@ function App() {
       } else {
         console.error(e);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (!phone) {
-    return <h2 style={{color: 'white', textAlign: 'center', marginTop: '20vh'}}>Невалидная ссылка</h2>;
+  if (isAlreadyRegistered) {
+    return <h2 style={{color: 'black', textAlign: 'center', marginTop: '20vh', fontSize: '24px'}}>Вы уже зарегистрировались</h2>;
   }
 
-  if (registrationSuccess) return <h2 style={{color: 'white', textAlign: 'center', marginTop: '20vh'}}>Вы успешно зарегистрировались, ожидайте проверку.</h2>;
+  if (!phone) {
+    return <h2 style={{color: 'black', textAlign: 'center', marginTop: '20vh', fontSize: '24px'}}>Невалидная ссылка</h2>;
+  }
+
+  if (registrationSuccess) return <h2 style={{color: 'black', textAlign: 'center', marginTop: '20vh', fontSize: '24px'}}>Вы успешно зарегистрировались, ожидайте проверку.</h2>;
 
   const renderForm = () => {
     let currentFields = [];
@@ -140,63 +166,81 @@ function App() {
           margin: '0 auto',
         }}
       >
+        {step === 'code_input' && (
+          <button 
+            type="button" 
+            onClick={() => setStep('email_input')}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: 24,
+              padding: '0px',
+              cursor: 'pointer',
+              marginBottom: 16,
+              color: '#333',
+            }}
+          >
+            ←
+          </button>
+        )}
         <h2>{title}</h2>
         {currentFields.map(field => (
-            <div key={field} style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'stretch',
-              marginBottom: 24,
-            }}>
-              <label style={{
-                marginBottom: 8,
-                fontWeight: 500,
+          <div key={field} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            marginBottom: 24,
+          }}>
+            <label style={{
+              marginBottom: 8,
+              fontWeight: 500,
+              fontSize: 16,
+              color: '#333',
+              textAlign: 'left',
+            }}>{{
+              email: 'Email',
+              code: 'Код',
+              company_name: 'Компания',
+              first_name: 'Имя',
+              last_name: 'Фамилия',
+              username: 'Логин'
+            }[field]}</label>
+            <input 
+              {...register(field)} 
+              type={field === 'code' ? 'number' : 'text'}
+              style={{
+                border: errors[field] ? '1px solid #e74c3c' : '1px solid #ccc',
+                background: '#fafafa',
+                color: '#222',
+                borderRadius: 6,
+                padding: '10px 12px',
                 fontSize: 16,
-                color: '#333',
-                textAlign: 'left',
-              }}>{{ 
-                email: 'Email',
-                code: 'Код',
-                company_name: 'Компания',
-                first_name: 'Имя',
-                last_name: 'Фамилия',
-                username: 'Логин'
-              }[field]}</label>
-              <input 
-                {...register(field)} 
-                type={field === 'code' ? 'number' : 'text'}
-                style={{
-                  border: errors[field] ? '1px solid #e74c3c' : '1px solid #ccc',
-                  background: '#fafafa',
-                  color: '#222',
-                  borderRadius: 6,
-                  padding: '10px 12px',
-                  fontSize: 16,
-                  outline: 'none',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                }} 
-              />
-              <p style={{color: '#e74c3c', margin: 0, fontSize: 13, minHeight: 18}}>{errors[field]?.message}</p>
-            </div>
+                outline: 'none',
+                width: '100%',
+                boxSizing: 'border-box',
+              }} 
+            />
+            <p style={{color: '#e74c3c', margin: 0, fontSize: 13, minHeight: 18}}>{errors[field]?.message}</p>
+          </div>
         ))}
         <button 
           type="submit" 
+          disabled={isSubmitting}
           style={{
             width: '100%',
-            background: '#2ecc40',
+            background: isSubmitting ? '#ccc' : '#2ecc40',
             color: 'white',
             border: 'none',
             borderRadius: 8,
             padding: '14px 0',
             fontSize: 18,
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
             marginTop: 12,
             transition: 'background 0.2s',
           }}
-          onMouseOver={e => e.currentTarget.style.background = '#27ae60'}
-          onMouseOut={e => e.currentTarget.style.background = '#2ecc40'}
+          onMouseOver={e => !isSubmitting && (e.currentTarget.style.background = '#27ae60')}
+          onMouseOut={e => !isSubmitting && (e.currentTarget.style.background = '#2ecc40')}
         >
           {submitButtonText}
         </button>
