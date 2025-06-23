@@ -265,8 +265,8 @@ export default function App() {
     <Router basename="/telegram-registration">
       <Routes>
         <Route path="/" element={<MainApp />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
+        <Route path="terms" element={<Terms />} />
+        <Route path="privacy" element={<Privacy />} />
       </Routes>
     </Router>
   );
