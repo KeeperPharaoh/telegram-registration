@@ -6,6 +6,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { IMaskInput } from 'react-imask';
 import { Controller } from 'react-hook-form';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Terms from './Terms';
+import Privacy from './Privacy';
 
 const emailSchema = yup.object({
   email: yup.string().email('Неверный формат').required('Обязательное поле'),
@@ -22,7 +25,7 @@ const registrationSchema = yup.object({
   username: yup.string().required('Обязательное поле'),
 }).required();
 
-function App() {
+function MainApp() {
   const [step, setStep] = useState('email_input'); // 'email_input', 'code_input', 'registration_form', 'success'
   const [email, setEmail] = useState('');
   const [requestId, setRequestId] = useState('');
@@ -257,4 +260,14 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router basename="/telegram-registration">
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+      </Routes>
+    </Router>
+  );
+}
