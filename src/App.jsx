@@ -33,17 +33,17 @@ function MainApp() {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agree, setAgree] = useState(false);
 
   const searchParams = new URLSearchParams(window.location.search);
   const chatId = searchParams.get('chat_id') || '';
-  const phone = searchParams.get('phone') || '';
 
   useEffect(() => {
     const checkRegistration = async () => {
       try {
         const resp = await axios.post(
           'https://platform.astanahubcloud.com/telegram/auth/check',
-          { chat_id: chatId, phone: phone }
+          { chat_id: chatId }
         );
         if (resp.data.state !== 'new') {
           setIsAlreadyRegistered(true);
@@ -53,7 +53,7 @@ function MainApp() {
       }
     };
     checkRegistration();
-  }, [chatId, phone]);
+  }, [chatId]);
 
   const {
     register,
@@ -99,7 +99,7 @@ function MainApp() {
       } else if (step === 'registration_form') {
         const resp = await axios.post(
           'https://platform.astanahubcloud.com/telegram/auth/registration',
-          { ...data, email: email, chat_id: chatId, phone }
+          { ...data, email: email, chat_id: chatId }
         );
         if (resp.data.status) {
           setRegistrationSuccess(true);
@@ -130,7 +130,7 @@ function MainApp() {
     return <h2 style={{color: 'black', textAlign: 'center', marginTop: '20vh', fontSize: '24px'}}>Вы уже зарегистрировались</h2>;
   }
 
-  if (!phone) {
+  if (!chatId) {
     return <h2 style={{color: 'black', textAlign: 'center', marginTop: '20vh', fontSize: '24px'}}>Невалидная ссылка</h2>;
   }
 
@@ -140,6 +140,7 @@ function MainApp() {
     let currentFields = [];
     let title = '';
     let submitButtonText = '';
+    let showAgreement = false;
 
     if (step === 'email_input') {
       currentFields = ['email'];
@@ -153,6 +154,7 @@ function MainApp() {
       currentFields = ['company_name', 'first_name', 'last_name', 'username'];
       title = 'Регистрация';
       submitButtonText = 'Зарегистрироваться';
+      showAgreement = true;
     }
 
     return (
@@ -226,24 +228,78 @@ function MainApp() {
             <p style={{color: '#e74c3c', margin: 0, fontSize: 13, minHeight: 18}}>{errors[field]?.message}</p>
           </div>
         ))}
+        {showAgreement && (
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', marginRight: 12 }}>
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={e => setAgree(e.target.checked)}
+                style={{ display: 'none' }}
+              />
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 20,
+                  height: 20,
+                  border: `2px solid ${agree ? '#2ecc40' : '#bdbdbd'}`,
+                  borderRadius: 6,
+                  background: agree ? '#2ecc40' : '#f5f5f5',
+                  position: 'relative',
+                  transition: 'border-color 0.2s, background 0.2s',
+                  marginRight: 10,
+                }}
+              >
+                {agree && (
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    style={{
+                      position: 'absolute',
+                      // top: 2,
+                      // left: 2,
+                      pointerEvents: 'none'
+                    }}
+                  >
+                    <polyline
+                      points="3,10 8,15 17,5"
+                      style={{
+                        fill: 'none',
+                        stroke: 'white',
+                        strokeWidth: 2
+                      }}
+                    />
+                  </svg>
+                )}
+              </span>
+            </label>
+            <span style={{ fontSize: 16, color: '#333', userSelect: 'none' }}>
+              Соглашаюсь с
+              <a href="https://platform.astanahubcloud.com/user_agreement.pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline', margin: '0 4px' }}>Пользовательским соглашением</a>
+              и
+              <a href="https://platform.astanahubcloud.com/public_offer.pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline', margin: '0 4px' }}>Публичной офертой</a>
+            </span>
+          </div>
+        )}
         <button 
           type="submit" 
-          disabled={isSubmitting}
+          disabled={isSubmitting || (showAgreement && !agree)}
           style={{
             width: '100%',
-            background: isSubmitting ? '#ccc' : '#2ecc40',
+            background: isSubmitting || (showAgreement && !agree) ? '#ccc' : '#2ecc40',
             color: 'white',
             border: 'none',
             borderRadius: 8,
             padding: '14px 0',
             fontSize: 18,
             fontWeight: 600,
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+            cursor: isSubmitting || (showAgreement && !agree) ? 'not-allowed' : 'pointer',
             marginTop: 12,
             transition: 'background 0.2s',
           }}
-          onMouseOver={e => !isSubmitting && (e.currentTarget.style.background = '#27ae60')}
-          onMouseOut={e => !isSubmitting && (e.currentTarget.style.background = '#2ecc40')}
+          onMouseOver={e => !(isSubmitting || (showAgreement && !agree)) && (e.currentTarget.style.background = '#27ae60')}
+          onMouseOut={e => !(isSubmitting || (showAgreement && !agree)) && (e.currentTarget.style.background = '#2ecc40')}
         >
           {submitButtonText}
         </button>
