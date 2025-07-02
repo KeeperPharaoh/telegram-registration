@@ -276,9 +276,9 @@ function MainApp() {
             </label>
             <span style={{ fontSize: 16, color: '#333', userSelect: 'none' }}>
               Соглашаюсь с
-              <a href="https://platform.astanahubcloud.com/user_agreement.pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline', margin: '0 4px' }}>Пользовательским соглашением</a>
+              <a href="https://docs.alem.ai/user_agreement.pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline', margin: '0 4px' }}>Пользовательским соглашением</a>
               и
-              <a href="https://platform.astanahubcloud.com/public_offer.pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline', margin: '0 4px' }}>Публичной офертой</a>
+              <a href="https://docs.alem.ai/public_offer.pdf" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline', margin: '0 4px' }}>Публичной офертой</a>
             </span>
           </div>
         )}
