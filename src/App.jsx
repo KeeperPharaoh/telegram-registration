@@ -37,6 +37,8 @@ function MainApp() {
 
   const searchParams = new URLSearchParams(window.location.search);
   const chatId = searchParams.get('chat_id') || '';
+  const phone = searchParams.get('phone') || '';
+  const telegramUsername = searchParams.get('telegram_username') || '';
 
   useEffect(() => {
     const checkRegistration = async () => {
@@ -97,9 +99,13 @@ function MainApp() {
           }
         }
       } else if (step === 'registration_form') {
+        const registrationPayload = { ...data, email: email, chat_id: chatId, phone };
+        if (telegramUsername) {
+          registrationPayload.telegram_username = telegramUsername;
+        }
         const resp = await axios.post(
           'https://platform.astanahubcloud.com/telegram/auth/registration',
-          { ...data, email: email, chat_id: chatId }
+          registrationPayload
         );
         if (resp.data.status) {
           setRegistrationSuccess(true);
